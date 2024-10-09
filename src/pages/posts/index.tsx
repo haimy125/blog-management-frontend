@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic"; // Dynamic import to prevent server-side rendering of ReactQuill
+import dynamic from "next/dynamic";
 import axios from "axios";
 import { useRouter } from "next/router";
 import "react-quill/dist/quill.snow.css";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 // Dynamically import ReactQuill so that it only renders on the client
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const Posts: React.FC = () => {
   interface Post {
@@ -38,7 +40,7 @@ const Posts: React.FC = () => {
     });
   };
 
-  const handleReactQuillChange = (content: string) => {
+  const handleCKEditorChange = (content: string) => {
     setPosts({
       ...posts,
       body: content,
@@ -74,6 +76,7 @@ const Posts: React.FC = () => {
       ); // Cập nhật lỗi}
     }
   };
+
   return (
     <div className="max-w-3xl p-4 mx-auto mb-6 ">
       <h1 className="mb-4 text-2xl font-bold">Create New Content</h1>
@@ -97,10 +100,14 @@ const Posts: React.FC = () => {
           <label htmlFor="body" className="block mb-1">
             Body:
           </label>
-          <ReactQuill
-            value={posts.body}
-            onChange={handleReactQuillChange}
-            className="w-full border-gray-300 roundedrelative"
+          <CKEditor
+            editor={ClassicEditor}
+            data={posts.body} // Giá trị ban đầu của editor
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              handleCKEditorChange(data); // Thay thế hàm onChange
+            }}
+            className="relative w-full border-gray-300 rounded"
             style={{ height: "50vh" }}
           />
         </div>

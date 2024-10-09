@@ -1,40 +1,42 @@
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Image from "next/image";
 
-const Profile = () => {
-  const [userProfile, setUserProfile] = useState(null);
+import { useProfile } from "@/hooks";
+import { UserInfoType } from "@/types";
+
+const Profile: React.FC = () => {
+  const [userInfo, setUserInfo] = useState<UserInfoType>({
+    userId: "",
+    token: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState(null);
+
+  const { userProfile, error, fetchProfile } = useProfile({
+    token: userInfo.token,
+    userId: userInfo.userId,
+  });
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
-    if (userId) {
-      const fetchProfile = async () => {
-        try {
-          const response = await axios.get(`http://localhost:8080/profile`, {
-            params: { userId }, // Truyền userId qua query parameter
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setUserProfile(response.data.data); // Lưu thông tin user vào state
-        } catch (error) {
-          setError("Không thể tải thông tin người dùng");
-        } finally {
-        }
-      };
-
-      fetchProfile();
+    if (!userId || !token) {
+      return;
     } else {
-      setError("User ID không tồn tại trong localStorage");
+      setUserInfo({ userId, token });
     }
-  }, []);
+  }, [userInfo.userId, userInfo.token]);
+
+  useEffect(() => {
+    if (userInfo.userId && userInfo.token) {
+      fetchProfile();
+    }
+  }, [userInfo.userId, userInfo.token, fetchProfile]);
 
   if (error) return <p>{error}</p>;
-  if (!userProfile) return <p className="text-center mt-4">Đang tải...</p>;
+  if (!userProfile) return <p className="mt-4 text-center">Đang tải...</p>;
+
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -51,8 +53,8 @@ const Profile = () => {
 
   return (
     <div>
-      <div className="max-w-3xl mx-auto mt-16 p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
+      <div className="max-w-3xl p-6 mx-auto mt-16 bg-white rounded-lg shadow-md">
+        <h1 className="mb-4 text-3xl font-bold text-center text-gray-800">
           {isEditing ? "Chỉnh sửa thông tin" : "Thông tin người dùng"}
         </h1>
         <div className="flex justify-center mb-6">
@@ -61,12 +63,12 @@ const Profile = () => {
             alt="Avatar"
             width={120}
             height={120}
-            className="rounded-full border-4 border-blue-500 shadow-lg"
+            className="border-4 border-blue-500 rounded-full shadow-lg"
           />
         </div>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block">
               Tên người dùng:
               <input
@@ -190,7 +192,7 @@ const Profile = () => {
           </div>
 
           <h2 className="mt-4 text-xl font-semibold text-gray-800">Danh bạ</h2>
-          <ul className="list-disc ml-5 space-y-2">
+          <ul className="ml-5 space-y-2 list-disc">
             {userProfile.contactsResponseDTOSet.map((contact, index) => (
               <li key={index} className="text-gray-700">
                 {contact.contactType}:{" "}
@@ -199,17 +201,17 @@ const Profile = () => {
             ))}
           </ul>
 
-          <div className="mt-6 flex justify-between">
+          <div className="flex justify-between mt-6">
             <button
               onClick={handleEditToggle}
-              className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 transition duration-300"
+              className="px-6 py-2 text-white transition duration-300 bg-blue-500 rounded-md hover:bg-blue-600"
             >
               {isEditing ? "Hủy" : "Chỉnh sửa"}
             </button>
             {isEditing && (
               <button
                 onClick={handleSave}
-                className="px-6 py-2 text-white bg-green-500 rounded-md hover:bg-green-600 transition duration-300"
+                className="px-6 py-2 text-white transition duration-300 bg-green-500 rounded-md hover:bg-green-600"
               >
                 Lưu
               </button>
