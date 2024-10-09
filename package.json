@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.5.1",
-    "antd-style": "^3.7.0",
+    "@tailwindcss/forms": "^0.5.9",
     "axios": "^1.7.7",
+    "framer-motion": "^11.11.4",
     "next": "14.2.14",
     "rc-util": "^5.43.0",
     "react": "^18",
@@ -22,8 +22,11 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8",
     "eslint-config-next": "14.2.14",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5"
   }
 }
