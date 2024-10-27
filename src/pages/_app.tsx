@@ -1,5 +1,7 @@
 // pages/_app.tsx
-import "@/src/styles/globals.css"; // Đường dẫn tuyệt đối
+import "@/styles/globals.css"; // Đường dẫn tuyệt đối
+import '../styles/custom-scrollbar.css'; // Di chuyển import vào đây
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'; // Di chuyển import vào đây
 import type { AppProps } from "next/app";
 import { AnimatePresence } from "framer-motion";
 import HeaderMenu from "../components/HeaderMenu";

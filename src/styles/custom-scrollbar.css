@@ -1,0 +1,19 @@
+/* custom-scrollbar.css */
+/* Tùy chỉnh thanh cuộn cho trình duyệt web */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng của thanh cuộn */
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1); /* Màu nền cho thanh cuộn */
+  border-radius: 10px; /* Bo tròn góc cho thanh cuộn */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Màu của thanh cuộn (xám) */
+  border-radius: 10px; /* Bo tròn góc cho thanh cuộn */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Màu khi hover trên thanh cuộn (xám đậm hơn) */
+}

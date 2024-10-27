@@ -1,89 +1,85 @@
+// pages/content/posts.tsx
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import axios from "axios";
 import { useRouter } from "next/router";
-import "react-quill/dist/quill.snow.css";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import EditorComponent from "@/components/editor"; // Đảm bảo đường dẫn chính xác
 
-// Dynamically import ReactQuill so that it only renders on the client
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+interface Post {
+  userId: string;
+  title: string;
+  body: string;
+}
 
 const Posts: React.FC = () => {
-  interface Post {
-    userId: string;
-    title: string;
-    body: string;
-  }
-
-  const [posts, setPosts] = useState<Post>({
-    userId: "",
-    title: "",
-    body: "",
-  });
-
-  const [error, setError] = useState<string>("");
+  const [posts, setPosts] = useState<Post>({ userId: "", title: "", body: "" });
+  const [error, setError] = useState("");
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const userId = localStorage.getItem("userId") || "";
-    setPosts((pverPost) => ({
-      ...pverPost,
-      userId,
-    }));
+    setPosts((prev) => ({ ...prev, userId }));
+
+    return () => {
+      setIsMounted(false);
+    };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPosts({
-      ...posts,
-      [e.target.name]: e.target.value,
-    });
+    if (isMounted) {
+      setPosts({ ...posts, [e.target.name]: e.target.value });
+    }
   };
 
-  const handleCKEditorChange = (content: string) => {
-    setPosts({
-      ...posts,
-      body: content,
-    });
+  const handleEditorChange = (htmlContent: string) => {
+    if (isMounted) {
+      setPosts((prev) => ({
+        ...prev,
+        body: htmlContent,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/content/create",
-        posts,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      console.log(response);
+    const token = localStorage.getItem("token");
 
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
+    try {
+      await axios.post("http://localhost:8080/content/create", posts, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      router.push("/");
     } catch (error) {
-      console.error(
-        "Tạo bài viết không thành công:",
-        error.response ? error.response.data : error.message
-      );
-      setError(
-        error.response?.data?.desc ||
-          "Tạo bài viết không thành công. Vui lòng kiểm tra lại."
-      ); // Cập nhật lỗi}
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.desc
+          ? error.response.data.desc
+          : "Tạo bài viết không thành công. Vui lòng kiểm tra lại.";
+      if (isMounted) {
+        setError(errorMessage);
+      }
     }
   };
 
   return (
-    <div className="max-w-3xl p-4 mx-auto mb-6 ">
-      <h1 className="mb-4 text-2xl font-bold">Create New Content</h1>
-      {error && <p className="text-red-600">{error}</p>}
+    <div className="max-w-3xl p-6 mx-auto mb-8 bg-white rounded-lg shadow-lg mt-14">
+      <h1 className="mb-3 text-3xl font-bold text-center text-gray-800">
+        Create New Content
+      </h1>
+      {error && (
+        <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="title" className="block mb-1">
+        <div className="flex flex-col">
+          <label
+            htmlFor="title"
+            className="mb-2 text-sm font-medium text-gray-700"
+          >
             Title:
           </label>
           <input
@@ -93,30 +89,24 @@ const Posts: React.FC = () => {
             value={posts.title}
             onChange={handleChange}
             required
-            className="w-full p-2 border border-gray-300 rounded"
+            className="p-3 transition border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div>
-          <label htmlFor="body" className="block mb-1">
+        <div className="flex flex-col">
+          <label
+            htmlFor="body"
+            className="mb-2 text-sm font-medium text-gray-700"
+          >
             Body:
           </label>
-          <CKEditor
-            editor={ClassicEditor}
-            data={posts.body} // Giá trị ban đầu của editor
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              handleCKEditorChange(data); // Thay thế hàm onChange
-            }}
-            className="relative w-full border-gray-300 rounded"
-            style={{ height: "50vh" }}
-          />
+          <EditorComponent onChange={handleEditorChange} />
         </div>
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end">
           <button
             type="submit"
-            className="p-2 mt-10 text-white bg-blue-500 rounded mt hover:bg-blue-600"
+            className="px-4 py-2 font-medium text-white bg-blue-500 rounded hover:bg-blue-600"
           >
-            Save content
+            Save Content
           </button>
         </div>
       </form>

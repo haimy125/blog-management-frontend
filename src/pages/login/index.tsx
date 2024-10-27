@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const Login: React.FC = () => {
   interface Signin {
@@ -35,6 +36,7 @@ const Login: React.FC = () => {
 
       if (response.status === 200) {
         setError(null);
+        Cookies.set("token", response.data.data);
         localStorage.setItem("token", response.data.data);
         localStorage.setItem("userId", response.data.userId);
         router.push("/");
@@ -51,7 +53,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center flex-1 min-h-full px-6 py-12 lg:px-8">
+    <div className="flex flex-col justify-center flex-1 min-h-full px-6 py-12 mt-14 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
           alt="Your Company Logo"

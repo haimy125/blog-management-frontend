@@ -61,7 +61,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center flex-1 min-h-full px-6 py-12 lg:px-8">
+    <div className="flex flex-col justify-center flex-1 min-h-full px-6 py-12 mt-14 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
           alt="Your Company Logo"
@@ -141,7 +141,7 @@ const Register: React.FC = () => {
               id="last_name"
               name="last_name"
               type="text"
-              value={signup.first_name}
+              value={signup.last_name}
               onChange={handleChange}
               required
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
